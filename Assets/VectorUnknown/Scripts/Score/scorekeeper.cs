@@ -22,8 +22,12 @@ public class scorekeeper : MonoBehaviour
 {
 
     public Text time_display;
+    public puzzle_info info;
+    public UFO_PuzzleManager manager;
     private float game_time;
     private bool active = true;
+    private static int numAttempts;
+    private static int maxAttempts;
 
     public class score_unit
     {   //score_unit calculates the score 
@@ -43,7 +47,8 @@ public class scorekeeper : MonoBehaviour
 
         private int gen_score( float seconds)
         {   // j = 1000, k = 500, g = horizontal stretch
-            return (int) Mathf.Ceil((this.j / Mathf.Pow(seconds, (1 / this.g) * Mathf.Log(seconds))) + this.k);
+           
+            return (int) Mathf.Ceil((this.j / Mathf.Pow(((0.75f)*(numAttempts / maxAttempts)+(0.25f)*seconds), (1 / this.g) * Mathf.Log(((0.75f) * (numAttempts / maxAttempts) + (0.25f) * seconds)))) + this.k);
         }
         
         private int gen_stars( int score)
@@ -79,6 +84,8 @@ public class scorekeeper : MonoBehaviour
         {
             game_time += Time.deltaTime;
             time_display.text = game_time.ToString("0.0");
+            numAttempts = manager.number_of_attempts;
+            maxAttempts = info.attempt_count;
         }
     }
 

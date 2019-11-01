@@ -1775,6 +1775,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   time_display: {fileID: 439222218}
+  info: {fileID: 1189697823}
+  manager: {fileID: 1189697822}
 --- !u!4 &232266585
 Transform:
   m_ObjectHideFlags: 0
@@ -17002,8 +17004,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1246771092}
   m_HandleRect: {fileID: 1246771091}
   m_Direction: 3
-  m_Value: 0.99999976
-  m_Size: 0.6820168
+  m_Value: 1
+  m_Size: 0.7726006
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
