@@ -47,12 +47,14 @@ public class scorekeeper : MonoBehaviour
 
         private int gen_score( float seconds)
         {   // j = 1000, k = 500, g = horizontal stretch
-           
-            return (int) Mathf.Ceil((this.j / Mathf.Pow(((0.75f)*(numAttempts / maxAttempts)+(0.25f)*seconds), (1 / this.g) * Mathf.Log(((0.75f) * (numAttempts / maxAttempts) + (0.25f) * seconds)))) + this.k);
+           int score = (int)Mathf.Ceil((this.j / Mathf.Pow(((0.75f) * (1 - (numAttempts / maxAttempts)) + (0.25f) * seconds), (1 / this.g) * Mathf.Log(((0.75f) * (1 - (numAttempts / maxAttempts)) + (0.25f) * seconds)))) + this.k);
+            Debug.Log("score of: " + score + " after " + seconds + " seconds and " + numAttempts + " / " + maxAttempts + " attempts");
+            return score;
         }
         
         private int gen_stars( int score)
         {
+            Debug.Log("generating stars");
             int max_score = this.j + this.k;
             if( // less than ~75 seconds returns three stars
                 score >= max_score - (max_score / 3)

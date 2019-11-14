@@ -4,6 +4,7 @@ using System.IO;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class UFO_PuzzleManager : MonoBehaviour
 {
@@ -19,6 +20,7 @@ public class UFO_PuzzleManager : MonoBehaviour
     public GameObject Player;
     public GameObject Goal;
     public Vector3 GoalPosition;
+    public Vector3[] GoalPositions;
     public Vector2[] Choices = new Vector2[4];//Container for Vectors in the form used for UI Text
     public Vector2 Solution;
     public int number_of_attempts;
@@ -33,6 +35,9 @@ public class UFO_PuzzleManager : MonoBehaviour
     public GameObject key_sack; //parent for all key objects
     public puzzle_info puzzle_info;
     public scorekeeper scorekeep; //generates and logs the score
+    public int number_of_goals;
+
+    public int offsetMax;
 
     // Use this for initialization
     void Start()
@@ -47,6 +52,10 @@ public class UFO_PuzzleManager : MonoBehaviour
 
     public void NextPuzzle()
     {
+        for(int i = 0; i < number_of_goals; i++)
+        {
+            GoalPositions[i] = Vector2.zero;
+        }
         int[] Num = new int[2]; //Container for the random index numbers of the GameConstants.BaseVectors array
         Debug.Log(GameConstants.difficulty);
         // Randomly chooses two vectors from the GameConstants.BaseVectors array and stores them in the Choices array.
@@ -57,18 +66,35 @@ public class UFO_PuzzleManager : MonoBehaviour
             //choose vectors from <1,0> to <3,1> in BaseVecctors
             lowerLimit = 2;
             upperLimit = 7; 
+            if(puzzle_info.game_mode == 2 || puzzle_info.game_mode == 3)
+            {
+                number_of_goals = 3;
+                offsetMax = 2;
+            }
         }
         if (GameConstants.difficulty == 2)
         {   //medium
             //choose vectors from <1,0> to <5,1> in BaseVecctors
             lowerLimit = 2; 
             upperLimit = 11;
-            
+            if (puzzle_info.game_mode == 2 || puzzle_info.game_mode == 3)
+            {
+                offsetMax = 3;
+                upperLimit = 9;
+                number_of_goals = 3;
+            }
         }
         if (GameConstants.difficulty == 3)
         {   //hard
             lowerLimit = 7;
             upperLimit = 16;
+            if (puzzle_info.game_mode == 2 || puzzle_info.game_mode == 3)
+            {
+                offsetMax = 4;
+                lowerLimit = 2;
+                upperLimit = 11;
+                number_of_goals = 3;
+            }
         }
 
         Num[0] = rnd.Next(lowerLimit, upperLimit-1);    // Num[i] is used to select random vector
@@ -95,17 +121,58 @@ public class UFO_PuzzleManager : MonoBehaviour
         int quad_2 = rnd.Next(1, 3); // Quad[1]= Random quadrant for the second solution vector, must be adjacent to Quad[0]
         enforce_quadrants(quad_1, quad_2);
 
-        // Calculate Solution and Goal Positions
-        Solution = generate_solution(Num);
-        GoalPosition = new Vector3(Solution.x, GameConstants.Height / GameConstants.GridSpacing, Solution.y) * GameConstants.GridSpacing;
+        if (puzzle_info.game_mode != 2 && puzzle_info.game_mode != 3)
+        {
+            // Calculate Solution and Goal Positions
+            Solution = generate_solution(Num);
+            GoalPosition = new Vector3(Solution.x, GameConstants.Height / GameConstants.GridSpacing, Solution.y) * GameConstants.GridSpacing;
 
 
-        //shuffle choices for random display in UI
-        shuffle(Choices);
-        string log_path = Application.dataPath + "/puzzle_manager_logfile.txt";
-        log(log_path);
+            //shuffle choices for random display in UI
+            shuffle(Choices);
+            string log_path = Application.dataPath + "/puzzle_manager_logfile.txt";
+            log(log_path);
 
-        Goal.transform.position = new Vector3(Solution.x, GameConstants.Height, Solution.y);
+            Goal.transform.position = new Vector3(Solution.x, GameConstants.Height, Solution.y);
+        }
+        else
+        {
+            GoalPositions = new Vector3[number_of_goals];
+            Vector2 thisSolution = generate_solution(Num);
+            Vector3 thisGoalPosition = new Vector3(thisSolution.x, GameConstants.Height / GameConstants.GridSpacing, thisSolution.y) * GameConstants.GridSpacing;
+            shuffle(Choices);
+            string log_path = Application.dataPath + "/puzzle_manager_logfile.txt";
+            log(log_path);
+            GoalPositions[0] = thisGoalPosition;
+            GameObject thisGoal = Instantiate<GameObject>(Goal);
+            thisGoal.transform.position = new Vector3(thisSolution.x, GameConstants.Height, thisSolution.y);
+
+            for (int i = 1; i < number_of_goals; i++)
+            {
+                if(checkOutsideBounds((i+1) * thisSolution))
+                {
+                    Vector2 newPosition = -(i + 1) * thisSolution;
+                    if (checkOutsideBounds(newPosition)) ResetScene();
+                    thisGoalPosition = new Vector3(newPosition.x, GameConstants.Height / GameConstants.GridSpacing, newPosition.y) * GameConstants.GridSpacing;
+                    GoalPositions[i] = thisGoalPosition;
+                    thisGoal = Instantiate<GameObject>(Goal);
+                    thisGoal.transform.position = new Vector3(newPosition.x, GameConstants.Height, newPosition.y);
+                }
+                else
+                {
+                    Vector2 newPosition = (i + 1) * thisSolution;
+                    thisGoalPosition = new Vector3(newPosition.x, GameConstants.Height / GameConstants.GridSpacing, newPosition.y) * GameConstants.GridSpacing;
+                    GoalPositions[i] = thisGoalPosition;
+                    thisGoal = Instantiate<GameObject>(Goal);
+                    thisGoal.transform.position = new Vector3(newPosition.x, GameConstants.Height, newPosition.y);
+                }
+                //if (puzzle_info.game_mode == 7)
+                //{
+                //    thisGoal.GetComponent<MeshRenderer>().enabled = false;
+                //}
+            }
+
+        }
 
         update_choices();
 
@@ -153,8 +220,8 @@ public class UFO_PuzzleManager : MonoBehaviour
         number_of_attempts = 0;
         Solution = new Vector2(0, 0);
         Goal.transform.position = new Vector3(0, GameConstants.Height, 0);//GoalPosition
-        if( Goal.transform.childCount > 1)
-            Goal.transform.GetChild(1).gameObject.SetActive( false);//Reset the goal to bowl of kibble
+        if (Goal.transform.childCount > 1)
+            Goal.transform.GetChild(1).gameObject.SetActive(false);//Reset the goal to bowl of kibble
 
         if (puzzle_info.game_mode == 1)
         {//Limited tour level needs to activate the lock and reset the keys
@@ -164,7 +231,13 @@ public class UFO_PuzzleManager : MonoBehaviour
                 GameObject.Destroy(key_sack.transform.GetChild(i).gameObject);
             }
         }
+        
 
+    }
+
+    public void ResetScene()//Completely reset scene. Used in place of reset game method, which gave errors when players reset after collecting keys. This should fix that issue. 
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     /* First Puzzle Algorithms */
@@ -223,17 +296,19 @@ public class UFO_PuzzleManager : MonoBehaviour
             if (s == 0) Choices[i + 2] *= -1; //0 --> sign change, 1 --> no sign change
         }
 
+        
         Psychometrics.logEvent("A:" + Mul[0] + "*" + Choices[0] + "+" + Mul[1] + "*" + Choices[1]);
         Vector2 test_vec = Mul[0] * Choices[0] + Mul[1] * Choices[1];
 
-        //check that solution is within -20, 20
-        //test_vec.x = (test_vec.x > 20) ? 20 : test_vec.x;
-        //test_vec.x = (test_vec.x < -20) ? -20 : test_vec.x;
-
-        //test_vec.y = (test_vec.y > 20) ? 20 : test_vec.y;
-        //test_vec.y = (test_vec.y < -20) ? -20 : test_vec.y;
-
-        if(test_vec.x > 20 || test_vec.x < -20 || test_vec.y > 20 || test_vec.y < -20 || test_vec == Vector2.zero) //make sure goal is within boundaries and is not at origin, otherwise, regenerate
+        //if(puzzle_info.game_mode == 3)
+        //{
+        //    int randomOffset = rnd.Next(-offsetMax, offsetMax);
+        //    while(randomOffset == 0) randomOffset = rnd.Next(-offsetMax, offsetMax);
+        //    test_vec = test_vec + new Vector2(randomOffset, 0);
+        //    Debug.Log(test_vec);
+        //}
+        
+        if (test_vec.x > 20 || test_vec.x < -20 || test_vec.y > 20 || test_vec.y < -20 || test_vec == Vector2.zero) //make sure goal is within boundaries and is not at origin, otherwise, regenerate
         {
             return generate_solution(Num);
 
@@ -337,6 +412,15 @@ public class UFO_PuzzleManager : MonoBehaviour
         return false;
     }
 
+    private Boolean checkOutsideBounds(Vector2 location)
+    {
+        if(location.x > 20 || location.x < -20 || location.y > 20 || location.y < -20)
+        {
+            return true;
+        }
+        return false;
+    }
+
     private Vector2 remain_within_bounds(Vector2 location)
     {
         if (location.x > 20) { location.x = 20; }
@@ -358,6 +442,15 @@ public class UFO_PuzzleManager : MonoBehaviour
                 Goal.transform.GetChild(0).gameObject.SetActive(true);
                 Goal.transform.GetChild(1).gameObject.SetActive(false);
             }
+        }
+    }
+    public void decrement_goals()
+    {
+        if (puzzle_info.game_mode == 2 || puzzle_info.game_mode == 3)
+        {
+            number_of_goals = number_of_goals - 1;
+
+            GoalCollisionTestSuccess();
         }
     }
 
@@ -406,7 +499,22 @@ public class UFO_PuzzleManager : MonoBehaviour
         string[] details = new string[3];
 
         details[0] = "< " + Player.transform.position.x.ToString("0") + ", " + Player.transform.position.z.ToString("0") + ">";
-        details[1] = "< " + Goal.transform.position.x.ToString("0") + ", " + Goal.transform.position.z.ToString("0") + ">";
+        if (puzzle_info.game_mode != 2 && puzzle_info.game_mode != 3)
+        {
+            details[1] = "< " + Goal.transform.position.x.ToString("0") + ", " + Goal.transform.position.z.ToString("0") + ">";
+        }
+        else
+        {
+            string positions = "< ";
+            foreach(Vector3 GoalPosition in GoalPositions)
+            {
+                positions += GoalPosition.x.ToString("0") + ", " + GoalPosition.z.ToString("0") + "; ";
+                
+            }
+            positions += ">";
+            details[1] = positions;
+
+        }
         details[2] = (puzzle_info.attempt_count <= 0 ?
                 "INF" :
                 number_of_attempts.ToString() + " / " + puzzle_info.attempt_count.ToString());
@@ -443,52 +551,80 @@ public class UFO_PuzzleManager : MonoBehaviour
     {
         Vector2 endPositionVector2 = new Vector2(endPosition.x, endPosition.z);
 
-        if (Solution == Vector2.zero)
+        if (puzzle_info.game_mode != 2 && puzzle_info.game_mode != 3)
         {
-            //the game is in a continue state
-        }
-        else if (
-          Solution == endPositionVector2 &&
-          (puzzle_info.attempt_count <= 0 || number_of_attempts <= puzzle_info.attempt_count))
-        {// The player enters a win state
-         //Debug.Log( "Win State");
-            GameObject level_data = GameObject.Find("LevelData");
-            Destroy(level_data);
-            Psychometrics.report("H");
-// Psychometrics.sendData();
-            if (puzzle_info.game_mode == 0)
+            if (Solution == Vector2.zero)
             {
-                if (puzzle_info.tutorial == false)
+                //the game is in a continue state
+            }
+            else if (
+              Solution == endPositionVector2 &&
+              (puzzle_info.attempt_count <= 0 || number_of_attempts <= puzzle_info.attempt_count))
+            {// The player enters a win state
+             //Debug.Log( "Win State");
+                GameObject level_data = GameObject.Find("LevelData");
+                Destroy(level_data);
+                Psychometrics.report("H");
+                // Psychometrics.sendData();
+                if (puzzle_info.game_mode == 0)
+                {
+                    if (puzzle_info.tutorial == false)
+                    {
+                        scorekeep.generate_score();
+                        InfoController.GetComponent<GUI_InfoController>().ShowSuccessOverlay();
+                    }
+                    if (puzzle_info.tutorial == true)
+                    {
+                        Debug.Log("tutorial success");
+                        InfoController.GetComponent<GUI_InfoController>().ShowTutorialSuccess();
+                    }
+                }
+
+                if (puzzle_info.game_mode == 1 && number_of_keys <= 0)
                 {
                     scorekeep.generate_score();
                     InfoController.GetComponent<GUI_InfoController>().ShowSuccessOverlay();
                 }
-                if (puzzle_info.tutorial == true)
-                {
-                    Debug.Log("tutorial success");
-                    InfoController.GetComponent<GUI_InfoController>().ShowTutorialSuccess();
-                }
             }
-
-            if (puzzle_info.game_mode == 1  && number_of_keys <= 0)
+            else if (
+              Solution != endPositionVector2 &&
+              puzzle_info.attempt_count > 0 &&
+              number_of_attempts >= puzzle_info.attempt_count)
+            {//the player enters a fail state
+                InfoController.GetComponent<GUI_InfoController>().ShowFailureOverlay();
+                GameObject level_data = GameObject.Find("LevelData");
+                Destroy(level_data);
+                Psychometrics.report("M");
+            }
+            else
             {
-                scorekeep.generate_score(); 
+                //the game is in a continue state
+            }
+        }
+        else//multi goal gamemodes
+        {
+            if(number_of_goals < 0)
+            {
+                GameObject level_data = GameObject.Find("LevelData");
+                Destroy(level_data);
+                Psychometrics.report("H");
+                scorekeep.generate_score();
                 InfoController.GetComponent<GUI_InfoController>().ShowSuccessOverlay();
             }
         }
-        else if (
-          Solution != endPositionVector2 &&
-          puzzle_info.attempt_count > 0 &&
-          number_of_attempts >= puzzle_info.attempt_count)
-        {//the player enters a fail state
-            InfoController.GetComponent<GUI_InfoController>().ShowFailureOverlay();
-            GameObject level_data = GameObject.Find("LevelData");
-            Destroy(level_data);
-            Psychometrics.report("M");
-        }
-        else
+    }
+    public void GoalCollisionTestSuccess()
+    {
+        if (puzzle_info.game_mode != 2 && puzzle_info.game_mode != 3)
         {
-            //the game is in a continue state
+            if (number_of_goals < 0)
+            {
+                GameObject level_data = GameObject.Find("LevelData");
+                Destroy(level_data);
+                Psychometrics.report("H");
+                scorekeep.generate_score();
+                InfoController.GetComponent<GUI_InfoController>().ShowSuccessOverlay();
+            }
         }
     }
 }

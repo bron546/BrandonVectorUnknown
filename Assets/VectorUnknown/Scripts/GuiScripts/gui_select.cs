@@ -63,11 +63,29 @@ public class gui_select : MonoBehaviour {
 
         Debug.Log("Button 5 Pressed");
 	}
+    public void level_six()
+    {
+        Psychometrics.logEvent("L6");
+        puzzle_settings(-1, 1, 1, 2);
+        PlayerPrefs.SetInt("CurrentLevel", 6);
+        SceneManager.LoadScene("VectorGame");
+
+        Debug.Log("Button 6 Pressed");
+    }
+    public void level_seven()
+    {
+        Psychometrics.logEvent("L7");
+        puzzle_settings(-1, 1, 1, 3);
+        PlayerPrefs.SetInt("CurrentLevel", 7);
+        SceneManager.LoadScene("VectorGame");
+
+        Debug.Log("Button 7 Pressed");
+    }
 
     public void level_tutorial()
     {
         Psychometrics.logEvent("LT");
-        puzzle_settings(-1, 1, 1, 0);
+        puzzle_settings(-1, 1, 1, 3);
         set_tutorial();
         PlayerPrefs.SetInt("CurrentLevel", 0);
         SceneManager.LoadScene("tutorial");

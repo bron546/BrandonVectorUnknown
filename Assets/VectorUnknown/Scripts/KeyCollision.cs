@@ -11,6 +11,7 @@ public class KeyCollision : MonoBehaviour {
 	}
 
 	public void OnTriggerEnter( Collider other){
+        
 		manager.decrement_keys ();
 		//Debug.Log( manager.number_of_keys);
 		GameObject.Destroy (gameObject);

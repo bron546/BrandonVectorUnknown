@@ -18,6 +18,7 @@ TagManager:
   - Dropper
   - Blinker
   - Score
+  - Goal
   layers:
   - Default
   - TransparentFX
