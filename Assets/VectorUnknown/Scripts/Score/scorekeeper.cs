@@ -47,7 +47,22 @@ public class scorekeeper : MonoBehaviour
 
         private int gen_score( float seconds)
         {   // j = 1000, k = 500, g = horizontal stretch
-           int score = (int)Mathf.Ceil((this.j / Mathf.Pow(((0.75f) * (1 - (numAttempts / maxAttempts)) + (0.25f) * seconds), (1 / this.g) * Mathf.Log(((0.75f) * (1 - (numAttempts / maxAttempts)) + (0.25f) * seconds)))) + this.k);
+            //int score = (int)Mathf.Ceil((this.j / Mathf.Pow(((0.75f) * (1 - (numAttempts / maxAttempts)) + (0.25f) * seconds), (1 / this.g) * Mathf.Log(((0.75f) * (1 - (numAttempts / maxAttempts)) + (0.25f) * seconds)))) + this.k);
+            
+            float secondScore = 1 - ((seconds - 5) / 300);//grace period of 5 seconds before score begins being deducted.
+            secondScore = secondScore * 0.25f;
+            int watchAttempts = numAttempts;
+            float decimalAttempts = (float)numAttempts / 10;
+            if (decimalAttempts == 0.1f) decimalAttempts = 0;//if done in one attempt give full attempt score
+            float watchAttemptScoreBeforeScale = decimalAttempts;
+            float attemptScore = 1 - decimalAttempts;
+            if(attemptScore < 0)
+            {
+                attemptScore = 0.1f;
+            }
+            attemptScore = attemptScore * 0.75f;
+            float combinedScore = secondScore + attemptScore;
+            int score = Mathf.CeilToInt(1000 * combinedScore);
             Debug.Log("score of: " + score + " after " + seconds + " seconds and " + numAttempts + " / " + maxAttempts + " attempts");
             return score;
         }
@@ -55,7 +70,7 @@ public class scorekeeper : MonoBehaviour
         private int gen_stars( int score)
         {
             Debug.Log("generating stars");
-            int max_score = this.j + this.k;
+            int max_score = 1000;
             if( // less than ~75 seconds returns three stars
                 score >= max_score - (max_score / 3)
             ){ //

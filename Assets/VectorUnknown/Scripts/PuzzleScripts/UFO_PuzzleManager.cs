@@ -135,7 +135,7 @@ public class UFO_PuzzleManager : MonoBehaviour
 
             Goal.transform.position = new Vector3(Solution.x, GameConstants.Height, Solution.y);
         }
-        else
+        else if(puzzle_info.game_mode == 2)//gamemode 2 (line through origin)
         {
             GoalPositions = new Vector3[number_of_goals];
             Vector2 thisSolution = generate_solution(Num);
@@ -166,12 +166,52 @@ public class UFO_PuzzleManager : MonoBehaviour
                     thisGoal = Instantiate<GameObject>(Goal);
                     thisGoal.transform.position = new Vector3(newPosition.x, GameConstants.Height, newPosition.y);
                 }
-                //if (puzzle_info.game_mode == 7)
-                //{
-                //    thisGoal.GetComponent<MeshRenderer>().enabled = false;
-                //}
+              
             }
 
+        }
+        else//gamemode 3 (line off origin)
+        {
+            GoalPositions = new Vector3[number_of_goals];
+            Vector2 thisSolution = generate_solution(Num);
+            int randomOffset = 0;
+            while (randomOffset == 0) randomOffset = rnd.Next(-offsetMax, offsetMax);//generate a random offset != 0
+            Vector2 offset = new Vector2(0, randomOffset);
+            Vector2 offsetSolution = thisSolution + offset;
+
+            Vector3 thisGoalPosition = new Vector3(offsetSolution.x, GameConstants.Height / GameConstants.GridSpacing, offsetSolution.y) * GameConstants.GridSpacing;
+            shuffle(Choices);
+            string log_path = Application.dataPath + "/puzzle_manager_logfile.txt";
+            log(log_path);
+            GoalPositions[0] = thisGoalPosition;
+            GameObject thisGoal = Instantiate<GameObject>(Goal);
+            thisGoal.transform.position = new Vector3(offsetSolution.x, GameConstants.Height, offsetSolution.y);
+            //thisGoal.GetComponent<MeshRenderer>().enabled = false;
+            for (int i = 1; i < number_of_goals; i++)
+            {
+                if (checkOutsideBounds((i + 1) * thisSolution))
+                {
+                    Vector2 newPosition = -(i + 1) * thisSolution;
+                    if (checkOutsideBounds(newPosition)) ResetScene();
+                    Vector2 offsetPosition = newPosition + offset;
+                    thisGoalPosition = new Vector3(offsetPosition.x, GameConstants.Height / GameConstants.GridSpacing, offsetPosition.y) * GameConstants.GridSpacing;
+                    GoalPositions[i] = thisGoalPosition;
+                    thisGoal = Instantiate<GameObject>(Goal);
+                    thisGoal.transform.position = new Vector3(offsetPosition.x, GameConstants.Height, offsetPosition.y);
+                   // thisGoal.GetComponent<MeshRenderer>().enabled = false;
+                }
+                else
+                {
+                    Vector2 newPosition = (i + 1) * thisSolution;
+                    Vector2 offsetPosition = newPosition + offset;
+                    thisGoalPosition = new Vector3(offsetPosition.x, GameConstants.Height / GameConstants.GridSpacing, offsetPosition.y) * GameConstants.GridSpacing;
+                    GoalPositions[i] = thisGoalPosition;
+                    thisGoal = Instantiate<GameObject>(Goal);
+                    thisGoal.transform.position = new Vector3(offsetPosition.x, GameConstants.Height, offsetPosition.y);
+                    //thisGoal.GetComponent<MeshRenderer>().enabled = false;
+                }
+               
+            }
         }
 
         update_choices();
