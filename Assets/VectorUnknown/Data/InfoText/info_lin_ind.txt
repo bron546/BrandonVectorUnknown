@@ -1,1 +1,0 @@
-Linear Independence: In a set of vectors, if no vector can be defined as a linear combination of the others, it is said to be Linearly Independent.
