@@ -1,1 +1,0 @@
-Linear Dependence: A set of vectors is said to be linearly dependent if one of the vectors in the set can be defined as a linear combination of the others.
