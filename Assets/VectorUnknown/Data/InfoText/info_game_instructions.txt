@@ -1,0 +1,23 @@
+INSTRUCTIONS:
+
+- You start at the rabbit and are trying to get to the basket. To do this you will use travel vectors.
+
+- On the left is the TOOLBOX. Drag the travel vectors from the toolbox to the boxes in the EQUATION at the top of the screen.
+
+- Use the +/- buttons to scale the travel vectors.
+
+- Press GO to see where the travel vectors take you.
+
+- On some levels the computed path of the vectors is shown connecting the rabbit to its final destination.
+
+- On some levels there is a lock, you will need to get all the keys to unlock it.
+
+CONTROLS:
+
+- Use your mouse to drag vectors and to modify scalars with +/- buttons.
+- Camera controls: Use the arrow keys to rotate the camera; press “R” to reset the camera to its original position.
+
+DATA LOG:
+
+- On the left, below the travel vectors, the Player Position, and Goal Position are listed.
+- Below that, information about your travels is recorded using <x,y> to denote travel vectors.
