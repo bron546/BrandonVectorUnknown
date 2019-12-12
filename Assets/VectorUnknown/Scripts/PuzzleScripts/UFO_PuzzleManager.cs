@@ -36,8 +36,10 @@ public class UFO_PuzzleManager : MonoBehaviour
     public puzzle_info puzzle_info;
     public scorekeeper scorekeep; //generates and logs the score
     public int number_of_goals;
-
+    public int max_key_retrys = 15;
+    public int key_retrys = 0;
     public int offsetMax;
+    public bool resetFlag = false;
 
     // Use this for initialization
     void Start()
@@ -68,8 +70,8 @@ public class UFO_PuzzleManager : MonoBehaviour
             upperLimit = 7; 
             if(puzzle_info.game_mode == 2 || puzzle_info.game_mode == 3)
             {
-                number_of_goals = 3;
-                offsetMax = 2;
+                number_of_goals = 6;
+                offsetMax = 3;
             }
         }
         if (GameConstants.difficulty == 2)
@@ -79,9 +81,9 @@ public class UFO_PuzzleManager : MonoBehaviour
             upperLimit = 11;
             if (puzzle_info.game_mode == 2 || puzzle_info.game_mode == 3)
             {
-                offsetMax = 3;
+                offsetMax = 4;
                 upperLimit = 9;
-                number_of_goals = 3;
+                number_of_goals = 7;
             }
         }
         if (GameConstants.difficulty == 3)
@@ -90,10 +92,10 @@ public class UFO_PuzzleManager : MonoBehaviour
             upperLimit = 16;
             if (puzzle_info.game_mode == 2 || puzzle_info.game_mode == 3)
             {
-                offsetMax = 4;
+                offsetMax = 5;
                 lowerLimit = 2;
                 upperLimit = 11;
-                number_of_goals = 3;
+                number_of_goals = 8;
             }
         }
 
@@ -138,7 +140,8 @@ public class UFO_PuzzleManager : MonoBehaviour
         else if(puzzle_info.game_mode == 2)//gamemode 2 (line through origin)
         {
             GoalPositions = new Vector3[number_of_goals];
-            Vector2 thisSolution = generate_solution(Num);
+            generate_solution(Num);
+            Vector2 thisSolution = Choices[1];
             Vector3 thisGoalPosition = new Vector3(thisSolution.x, GameConstants.Height / GameConstants.GridSpacing, thisSolution.y) * GameConstants.GridSpacing;
             shuffle(Choices);
             string log_path = Application.dataPath + "/puzzle_manager_logfile.txt";
@@ -173,9 +176,10 @@ public class UFO_PuzzleManager : MonoBehaviour
         else//gamemode 3 (line off origin)
         {
             GoalPositions = new Vector3[number_of_goals];
-            Vector2 thisSolution = generate_solution(Num);
+            generate_solution(Num);
+            Vector2 thisSolution = Choices[1];
             int randomOffset = 0;
-            while (randomOffset == 0) randomOffset = rnd.Next(-offsetMax, offsetMax);//generate a random offset != 0
+            while (randomOffset == 0 || randomOffset == 1 || randomOffset == -1) randomOffset = rnd.Next(-offsetMax, offsetMax);//generate a random offset != 0
             Vector2 offset = new Vector2(0, randomOffset);
             Vector2 offsetSolution = thisSolution + offset;
 
@@ -408,40 +412,73 @@ public class UFO_PuzzleManager : MonoBehaviour
             Vector2 construct_location = constructLocation(first_min, first_part, second_min, second_part, key_locations);
             //construct_location *= 0.5f;
             //construct_location = remain_within_bounds(construct_location);
-            key_locations[i] = new Vector3(construct_location.x, 1f, construct_location.y);
+           // key_locations[i] = new Vector3(construct_location.x, 1f, construct_location.y);
             //Debug.Log ("Key locations: " +key_locations [i].ToString ());
             /*******************************/
 
             /* Step 4: Load Key at location */
-            if (!checkNear(key_locations[i].x, key_locations[i].z)) // Verify key can't spawn near origin
+            //if (!checkNear(key_locations[i].x, key_locations[i].z)) // Verify key can't spawn near origin
+            if (construct_location != Vector2.zero)
             {
+                key_locations[i] = new Vector3(construct_location.x, 1f, construct_location.y);
                 GameObject load_key = Instantiate(key, key_locations[i], Quaternion.identity, key_sack.transform);
                 Psychometrics.logEvent("K" + (i + 1) + "(" + key_locations[i].x + "," + key_locations[i].y + ")");
             }
             else
             {
-                i--;
+                return;
             }
             /********************************/
 
         }
+        resetFlag = false;
     }
 
     private Vector2 constructLocation(int first_min, Vector2 first_part, int second_min, Vector2 second_part, Vector3[] key_locations)//check to make sure valid key location within bounds, seperate from goal, and unique from other key locations was generated. Otherwise, regenerate. 
     {
         Vector2 returnVal = (rnd.Next(-first_min, first_min) * first_part) + (rnd.Next(-second_min, second_min) * second_part);
-        if(returnVal.x > 20 || returnVal.x < -20 || returnVal.y > 20 || returnVal.y < -20 || (returnVal.x == Solution.x && returnVal.y == Solution.y))
+        if (key_retrys >= max_key_retrys)
         {
-            returnVal = constructLocation(first_min, first_part, second_min, second_part, key_locations);
-        }
-        foreach(Vector3 keyLocation in key_locations)
-        {
-            if (returnVal.x == keyLocation.x && returnVal.y == keyLocation.z)
-            {
-                returnVal = constructLocation(first_min, first_part, second_min, second_part, key_locations);
+            key_retrys = 0;
+            Player.transform.position = new Vector3(0, GameConstants.Height, 0); //Initialize Player Position
+            number_of_attempts = 0;
+            Solution = new Vector2(0, 0);
+            Goal.transform.position = new Vector3(0, GameConstants.Height, 0);//GoalPosition
+            if (Goal.transform.childCount > 1)
+                Goal.transform.GetChild(1).gameObject.SetActive(false);//Reset the goal to bowl of kibble
+
+            if (puzzle_info.game_mode == 1)
+            {//Limited tour level needs to activate the lock and reset the keys
+                Goal.transform.GetChild(1).gameObject.SetActive(true);
+                for (int i = 0; i < key_sack.transform.childCount; i++)
+                {
+                    GameObject.Destroy(key_sack.transform.GetChild(i).gameObject);
+                }
+                key_locations = null;
             }
+
+            NextPuzzle();
+            resetFlag = true;
+            return Vector2.zero;
         }
-        
+        if (returnVal.x > 20 || returnVal.x < -20 || returnVal.y > 20 || returnVal.y < -20 || (returnVal.x == Solution.x && returnVal.y == Solution.y) || (returnVal.x == 0 && returnVal.y == 0))
+        {
+            key_retrys++;
+            returnVal = constructLocation(first_min, first_part, second_min, second_part, key_locations);
+            key_retrys = 0;
+            return returnVal;
+        }
+        if (key_locations != null)
+            foreach (Vector3 keyLocation in key_locations)
+            {
+                if (returnVal.x == keyLocation.x && returnVal.y == keyLocation.z)
+                {
+                    key_retrys++;
+                    returnVal = constructLocation(first_min, first_part, second_min, second_part, key_locations);
+                    break;
+                }
+            }
+        key_retrys = 0;
         return returnVal;
     }
 
