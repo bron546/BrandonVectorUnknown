@@ -39,7 +39,10 @@ public class UFO_PuzzleManager : MonoBehaviour
     public int max_key_retrys = 15;
     public int key_retrys = 0;
     public int offsetMax;
+    public bool levelFinished = false;
     public bool resetFlag = false;
+    public Vector2 solutionVec;
+    public Vector2 offsetVec;
 
     // Use this for initialization
     void Start()
@@ -54,6 +57,7 @@ public class UFO_PuzzleManager : MonoBehaviour
 
     public void NextPuzzle()
     {
+        levelFinished = false;
         for(int i = 0; i < number_of_goals; i++)
         {
             GoalPositions[i] = Vector2.zero;
@@ -71,7 +75,7 @@ public class UFO_PuzzleManager : MonoBehaviour
             if(puzzle_info.game_mode == 2 || puzzle_info.game_mode == 3)
             {
                 number_of_goals = 6;
-                offsetMax = 3;
+                //offsetMax = 4;
             }
         }
         if (GameConstants.difficulty == 2)
@@ -81,7 +85,7 @@ public class UFO_PuzzleManager : MonoBehaviour
             upperLimit = 11;
             if (puzzle_info.game_mode == 2 || puzzle_info.game_mode == 3)
             {
-                offsetMax = 4;
+                //offsetMax = 5;
                 upperLimit = 9;
                 number_of_goals = 7;
             }
@@ -92,7 +96,7 @@ public class UFO_PuzzleManager : MonoBehaviour
             upperLimit = 16;
             if (puzzle_info.game_mode == 2 || puzzle_info.game_mode == 3)
             {
-                offsetMax = 5;
+                //offsetMax = 6;
                 lowerLimit = 2;
                 upperLimit = 11;
                 number_of_goals = 8;
@@ -142,6 +146,7 @@ public class UFO_PuzzleManager : MonoBehaviour
             GoalPositions = new Vector3[number_of_goals];
             generate_solution(Num);
             Vector2 thisSolution = Choices[1];
+            solutionVec = thisSolution;
             Vector3 thisGoalPosition = new Vector3(thisSolution.x, GameConstants.Height / GameConstants.GridSpacing, thisSolution.y) * GameConstants.GridSpacing;
             shuffle(Choices);
             string log_path = Application.dataPath + "/puzzle_manager_logfile.txt";
@@ -149,6 +154,7 @@ public class UFO_PuzzleManager : MonoBehaviour
             GoalPositions[0] = thisGoalPosition;
             GameObject thisGoal = Instantiate<GameObject>(Goal);
             thisGoal.transform.position = new Vector3(thisSolution.x, GameConstants.Height, thisSolution.y);
+            
 
             for (int i = 1; i < number_of_goals; i++)
             {
@@ -178,11 +184,12 @@ public class UFO_PuzzleManager : MonoBehaviour
             GoalPositions = new Vector3[number_of_goals];
             generate_solution(Num);
             Vector2 thisSolution = Choices[1];
-            int randomOffset = 0;
-            while (randomOffset == 0 || randomOffset == 1 || randomOffset == -1) randomOffset = rnd.Next(-offsetMax, offsetMax);//generate a random offset != 0
-            Vector2 offset = new Vector2(0, randomOffset);
+            //int randomOffset = 0;
+            //while (randomOffset == 0 || randomOffset == 1 || randomOffset == -1) randomOffset = rnd.Next(-offsetMax, offsetMax);//generate a random offset != 0
+            Vector2 offset = Choices[0];
             Vector2 offsetSolution = thisSolution + offset;
-
+            solutionVec = thisSolution;
+            offsetVec = offset;
             Vector3 thisGoalPosition = new Vector3(offsetSolution.x, GameConstants.Height / GameConstants.GridSpacing, offsetSolution.y) * GameConstants.GridSpacing;
             shuffle(Choices);
             string log_path = Application.dataPath + "/puzzle_manager_logfile.txt";
@@ -260,6 +267,7 @@ public class UFO_PuzzleManager : MonoBehaviour
 
     public void ResetGame()
     {
+        if (levelFinished) SceneManager.LoadScene("menu_scene");
         Player.transform.position = new Vector3(0, GameConstants.Height, 0); //Initialize Player Position
         number_of_attempts = 0;
         Solution = new Vector2(0, 0);
@@ -281,6 +289,11 @@ public class UFO_PuzzleManager : MonoBehaviour
 
     public void ResetScene()//Completely reset scene. Used in place of reset game method, which gave errors when players reset after collecting keys. This should fix that issue. 
     {
+        if (levelFinished)
+        {
+            SceneManager.LoadScene("menu_scene");
+            return;
+        }
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
@@ -582,14 +595,10 @@ public class UFO_PuzzleManager : MonoBehaviour
         }
         else
         {
-            string positions = "< ";
-            foreach(Vector3 GoalPosition in GoalPositions)
-            {
-                positions += GoalPosition.x.ToString("0") + ", " + GoalPosition.z.ToString("0") + "; ";
-                
-            }
-            positions += ">";
-            details[1] = positions;
+            string lineEq = "";
+            if(puzzle_info.game_mode == 2) lineEq = "y = (" + solutionVec.y + "/" + solutionVec.x + ") x";
+            else lineEq = "y = (" + solutionVec.y + "/" + solutionVec.x + ") x + (" + offsetVec.y + "/" + offsetVec.x + ")";
+            details[1] = lineEq;
 
         }
         details[2] = (puzzle_info.attempt_count <= 0 ?
@@ -687,6 +696,7 @@ public class UFO_PuzzleManager : MonoBehaviour
                 Psychometrics.report("H");
                 scorekeep.generate_score();
                 InfoController.GetComponent<GUI_InfoController>().ShowSuccessOverlay();
+                levelFinished = true;
             }
         }
     }
