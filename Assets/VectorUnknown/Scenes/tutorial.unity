@@ -12445,6 +12445,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   time_display: {fileID: 173652913}
+  info: {fileID: 1742276905}
+  manager: {fileID: 1742276906}
 --- !u!4 &1553327246
 Transform:
   m_ObjectHideFlags: 0
@@ -14451,6 +14453,7 @@ MonoBehaviour:
   Player: {fileID: 1161795239}
   Goal: {fileID: 1867902771}
   GoalPosition: {x: 0, y: 0, z: 0}
+  GoalPositions: []
   Choices:
   - {x: 0, y: 0}
   - {x: 0, y: 0}
@@ -14466,6 +14469,16 @@ MonoBehaviour:
   key_sack: {fileID: 0}
   puzzle_info: {fileID: 0}
   scorekeep: {fileID: 0}
+  number_of_goals: 0
+  max_key_retrys: 15
+  key_retrys: 0
+  offsetMax: 0
+  spacingMax: 0
+  spacingMin: 0
+  levelFinished: 0
+  resetFlag: 0
+  solutionVec: {x: 0, y: 0}
+  offsetVec: {x: 0, y: 0}
 --- !u!4 &1742276907
 Transform:
   m_ObjectHideFlags: 0
@@ -15410,7 +15423,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1621339037}
   m_Direction: 3
   m_Value: 1
-  m_Size: 0.6822766
+  m_Size: 0.7766388
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

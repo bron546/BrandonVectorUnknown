@@ -18,7 +18,7 @@ public class tutorial : MonoBehaviour
     private string[] tutorial_messages = new string[9]
     {
         "\tFirst things first, the goal of the game is to get the bunny on the grid to move to the goal.This tutorial will tell you how to work with the formula bar to accomplish that.\n\tUse the arrow keys to move the camera around for a different perspective of the grid. Press the 'r' key to reset the camera.",
-        "\tThe minimap in the top right corner shows your position on the grid from a top down perspective.",
+        "\tThe minimap in the top left corner shows your position on the grid from a top down perspective.",
         "\tThese are the vector choices you have available to you during the level. This panel displays the vectors you have available to you for solving the current puzzle.",
         "\tThis is the player info panel. This shows your current position, the goal's position, and the number of attempts you have left.",
         "\tThe log panel will track your progress through the level. It contains a history of each step you take. \n\tEvery time you click \"GO\" the formula you constructed is logged to this panel.",

@@ -23,8 +23,11 @@ public class puzzle_info : MonoBehaviour {
 
         if( this.tutorial == false)
             manager.debug_new_puzzle();
-        if( this.tutorial == true)
+        if (this.tutorial == true)
+        {
+            this.game_mode = 0;
             manager.set_tutorial();
+        }
 
         if (GetDisplayUpcomingPath() == 1)
             future.enabled = true;

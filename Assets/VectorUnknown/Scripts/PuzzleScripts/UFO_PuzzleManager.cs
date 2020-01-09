@@ -39,10 +39,14 @@ public class UFO_PuzzleManager : MonoBehaviour
     public int max_key_retrys = 15;
     public int key_retrys = 0;
     public int offsetMax;
+    public int spacingMax;
+    public int spacingMin;
     public bool levelFinished = false;
     public bool resetFlag = false;
     public Vector2 solutionVec;
     public Vector2 offsetVec;
+    public bool solutionDisplaySet = false;
+    public string solutionFormat = "";
 
     // Use this for initialization
     void Start()
@@ -51,12 +55,23 @@ public class UFO_PuzzleManager : MonoBehaviour
         choice_panel = GameObject.FindGameObjectWithTag("Choices");
         puzzle_info = GetComponent<puzzle_info>();
 
-        if( puzzle_info.tutorial == false)
+        if (puzzle_info.tutorial == false)
+        {
             scorekeep = GameObject.FindGameObjectWithTag("Score").GetComponent<scorekeeper>();
+            Solution = new Vector2(0, 0);
+            solutionFormat = "";
+            solutionDisplaySet = false;
+        }
     }
 
     public void NextPuzzle()
     {
+        solutionFormat = "";
+        solutionDisplaySet = false;
+        if (puzzle_info.tutorial == false)
+        {
+            Solution = new Vector2(0, 0);
+        }
         levelFinished = false;
         for(int i = 0; i < number_of_goals; i++)
         {
@@ -76,6 +91,8 @@ public class UFO_PuzzleManager : MonoBehaviour
             {
                 number_of_goals = 6;
                 //offsetMax = 4;
+                spacingMax = 5;
+                spacingMin = 3;
             }
         }
         if (GameConstants.difficulty == 2)
@@ -87,7 +104,9 @@ public class UFO_PuzzleManager : MonoBehaviour
             {
                 //offsetMax = 5;
                 upperLimit = 9;
-                number_of_goals = 7;
+                number_of_goals = 5;
+                spacingMax = 6;
+                spacingMin = 3;
             }
         }
         if (GameConstants.difficulty == 3)
@@ -99,7 +118,9 @@ public class UFO_PuzzleManager : MonoBehaviour
                 //offsetMax = 6;
                 lowerLimit = 2;
                 upperLimit = 11;
-                number_of_goals = 8;
+                number_of_goals = 3;
+                spacingMax = 9;
+                spacingMin = 5;
             }
         }
 
@@ -158,10 +179,22 @@ public class UFO_PuzzleManager : MonoBehaviour
 
             for (int i = 1; i < number_of_goals; i++)
             {
-                if(checkOutsideBounds((i+1) * thisSolution))
+                int randomSpacing = rnd.Next(spacingMin, spacingMax);
+                int sign = rnd.Next(0, 2);
+                if(sign == 0)
                 {
-                    Vector2 newPosition = -(i + 1) * thisSolution;
-                    if (checkOutsideBounds(newPosition)) ResetScene();
+                    Vector2 newPosition = -(i + randomSpacing) * thisSolution;
+                    int attempts = 5;
+                    while ((checkOutsideBounds(newPosition) || checkNearOrigin(newPosition)) && attempts > 0)
+                    {
+                        randomSpacing = rnd.Next(spacingMin, spacingMax);
+                        newPosition = -(i + randomSpacing) * thisSolution;
+                        attempts--;
+                    }
+                    if(attempts <= 0)
+                    {
+                        ResetScene();
+                    }
                     thisGoalPosition = new Vector3(newPosition.x, GameConstants.Height / GameConstants.GridSpacing, newPosition.y) * GameConstants.GridSpacing;
                     GoalPositions[i] = thisGoalPosition;
                     thisGoal = Instantiate<GameObject>(Goal);
@@ -169,7 +202,18 @@ public class UFO_PuzzleManager : MonoBehaviour
                 }
                 else
                 {
-                    Vector2 newPosition = (i + 1) * thisSolution;
+                    Vector2 newPosition = (i + randomSpacing) * thisSolution;
+                    int attempts = 5;
+                    while ((checkOutsideBounds(newPosition) || checkNearOrigin(newPosition)) && attempts > 0)
+                    {
+                        randomSpacing = rnd.Next(spacingMin, spacingMax);
+                        newPosition = (i + randomSpacing) * thisSolution;
+                        attempts--;
+                    }
+                    if (attempts <= 0)
+                    {
+                        ResetScene();
+                    }
                     thisGoalPosition = new Vector3(newPosition.x, GameConstants.Height / GameConstants.GridSpacing, newPosition.y) * GameConstants.GridSpacing;
                     GoalPositions[i] = thisGoalPosition;
                     thisGoal = Instantiate<GameObject>(Goal);
@@ -179,13 +223,11 @@ public class UFO_PuzzleManager : MonoBehaviour
             }
 
         }
-        else//gamemode 3 (line off origin)
+        else if(puzzle_info.game_mode == 3)//gamemode 3 (line off origin)
         {
             GoalPositions = new Vector3[number_of_goals];
             generate_solution(Num);
             Vector2 thisSolution = Choices[1];
-            //int randomOffset = 0;
-            //while (randomOffset == 0 || randomOffset == 1 || randomOffset == -1) randomOffset = rnd.Next(-offsetMax, offsetMax);//generate a random offset != 0
             Vector2 offset = Choices[0];
             Vector2 offsetSolution = thisSolution + offset;
             solutionVec = thisSolution;
@@ -200,26 +242,45 @@ public class UFO_PuzzleManager : MonoBehaviour
             //thisGoal.GetComponent<MeshRenderer>().enabled = false;
             for (int i = 1; i < number_of_goals; i++)
             {
-                if (checkOutsideBounds((i + 1) * thisSolution))
+                int randomSpacing = rnd.Next(spacingMin, spacingMax);
+                int sign = rnd.Next(0, 2);
+                if (sign == 0)
                 {
-                    Vector2 newPosition = -(i + 1) * thisSolution;
-                    if (checkOutsideBounds(newPosition)) ResetScene();
-                    Vector2 offsetPosition = newPosition + offset;
-                    thisGoalPosition = new Vector3(offsetPosition.x, GameConstants.Height / GameConstants.GridSpacing, offsetPosition.y) * GameConstants.GridSpacing;
+                    Vector2 newPosition = -(i + randomSpacing) * thisSolution + offset;
+                    int attempts = 5;
+                    while ((checkOutsideBounds(newPosition) || checkNearOrigin(newPosition)) && attempts > 0)
+                    {
+                        randomSpacing = rnd.Next(spacingMin, spacingMax);
+                        newPosition = -(i + randomSpacing) * thisSolution + offset;
+                        attempts--;
+                    }
+                    if (attempts <= 0)
+                    {
+                        ResetScene();
+                    }
+                    thisGoalPosition = new Vector3(newPosition.x, GameConstants.Height / GameConstants.GridSpacing, newPosition.y) * GameConstants.GridSpacing;
                     GoalPositions[i] = thisGoalPosition;
                     thisGoal = Instantiate<GameObject>(Goal);
-                    thisGoal.transform.position = new Vector3(offsetPosition.x, GameConstants.Height, offsetPosition.y);
-                   // thisGoal.GetComponent<MeshRenderer>().enabled = false;
+                    thisGoal.transform.position = new Vector3(newPosition.x, GameConstants.Height, newPosition.y);
                 }
                 else
                 {
-                    Vector2 newPosition = (i + 1) * thisSolution;
-                    Vector2 offsetPosition = newPosition + offset;
-                    thisGoalPosition = new Vector3(offsetPosition.x, GameConstants.Height / GameConstants.GridSpacing, offsetPosition.y) * GameConstants.GridSpacing;
+                    Vector2 newPosition = (i + randomSpacing) * thisSolution + offset;
+                    int attempts = 5;
+                    while ((checkOutsideBounds(newPosition) || checkNearOrigin(newPosition)) && attempts > 0)
+                    {
+                        randomSpacing = rnd.Next(spacingMin, spacingMax);
+                        newPosition = (i + randomSpacing) * thisSolution + offset;
+                        attempts--;
+                    }
+                    if (attempts <= 0)
+                    {
+                        ResetScene();
+                    }
+                    thisGoalPosition = new Vector3(newPosition.x, GameConstants.Height / GameConstants.GridSpacing, newPosition.y) * GameConstants.GridSpacing;
                     GoalPositions[i] = thisGoalPosition;
                     thisGoal = Instantiate<GameObject>(Goal);
-                    thisGoal.transform.position = new Vector3(offsetPosition.x, GameConstants.Height, offsetPosition.y);
-                    //thisGoal.GetComponent<MeshRenderer>().enabled = false;
+                    thisGoal.transform.position = new Vector3(newPosition.x, GameConstants.Height, newPosition.y);
                 }
                
             }
@@ -240,6 +301,12 @@ public class UFO_PuzzleManager : MonoBehaviour
         Psychometrics.logEvent("Cs" + Choices[0] + Choices[1] + Choices[2] + Choices[3]);
     }
 
+    public bool checkNearOrigin(Vector2 point)
+    {
+        if ((Math.Abs(point.x) < 4) && (Math.Abs(point.y) < 4)) return true;
+        else return false;
+    }
+
     public void set_tutorial()
     {//sets the pre-defined tutorial level
         Debug.Log("Setting Tutorial...");
@@ -247,6 +314,7 @@ public class UFO_PuzzleManager : MonoBehaviour
         this.number_of_attempts = -1;
         this.number_of_keys = 0;
         this.Solution = new Vector2(7, 5);
+        //puzzle_info.game_mode = 0;
         Player.transform.position = new Vector3(0, GameConstants.Height, 0);
         this.GoalPosition = new Vector3(
             Solution.x, 
@@ -267,6 +335,8 @@ public class UFO_PuzzleManager : MonoBehaviour
 
     public void ResetGame()
     {
+        solutionFormat = "";
+        solutionDisplaySet = false;
         if (levelFinished) SceneManager.LoadScene("menu_scene");
         Player.transform.position = new Vector3(0, GameConstants.Height, 0); //Initialize Player Position
         number_of_attempts = 0;
@@ -289,6 +359,8 @@ public class UFO_PuzzleManager : MonoBehaviour
 
     public void ResetScene()//Completely reset scene. Used in place of reset game method, which gave errors when players reset after collecting keys. This should fix that issue. 
     {
+        solutionFormat = "";
+        solutionDisplaySet = false;
         if (levelFinished)
         {
             SceneManager.LoadScene("menu_scene");
@@ -357,13 +429,6 @@ public class UFO_PuzzleManager : MonoBehaviour
         Psychometrics.logEvent("A:" + Mul[0] + "*" + Choices[0] + "+" + Mul[1] + "*" + Choices[1]);
         Vector2 test_vec = Mul[0] * Choices[0] + Mul[1] * Choices[1];
 
-        //if(puzzle_info.game_mode == 3)
-        //{
-        //    int randomOffset = rnd.Next(-offsetMax, offsetMax);
-        //    while(randomOffset == 0) randomOffset = rnd.Next(-offsetMax, offsetMax);
-        //    test_vec = test_vec + new Vector2(randomOffset, 0);
-        //    Debug.Log(test_vec);
-        //}
         
         if (test_vec.x > 20 || test_vec.x < -20 || test_vec.y > 20 || test_vec.y < -20 || test_vec == Vector2.zero) //make sure goal is within boundaries and is not at origin, otherwise, regenerate
         {
@@ -589,16 +654,58 @@ public class UFO_PuzzleManager : MonoBehaviour
         string[] details = new string[3];
 
         details[0] = "< " + Player.transform.position.x.ToString("0") + ", " + Player.transform.position.z.ToString("0") + ">";
-        if (puzzle_info.game_mode != 2 && puzzle_info.game_mode != 3)
+        if (( puzzle_info.game_mode != 2 && puzzle_info.game_mode != 3) || puzzle_info.tutorial)
         {
             details[1] = "< " + Goal.transform.position.x.ToString("0") + ", " + Goal.transform.position.z.ToString("0") + ">";
         }
-        else
+        else if(puzzle_info.game_mode == 2 || puzzle_info.game_mode == 3)
         {
-            string lineEq = "";
-            if(puzzle_info.game_mode == 2) lineEq = "y = (" + solutionVec.y + "/" + solutionVec.x + ") x";
-            else lineEq = "y = (" + solutionVec.y + "/" + solutionVec.x + ") x + (" + offsetVec.y + "/" + offsetVec.x + ")";
-            details[1] = lineEq;
+            if (!solutionDisplaySet)
+            {
+                string lineEq = "";
+                int randLineDisplay = rnd.Next(0, 3);//random num 0-2
+                if (randLineDisplay == 0)//display y=mx+b format
+                {
+                    if (puzzle_info.game_mode == 2)
+                    {
+                        lineEq = "y = (" + solutionVec.y + "/" + solutionVec.x + ") x";
+                    }
+                    else
+                    {
+                        lineEq = "y = (" + solutionVec.y + "/" + solutionVec.x + ") x + (" + offsetVec.y + "/" + offsetVec.x + ")";
+                    }
+                }
+                else if (randLineDisplay == 1)//display vector format
+                {
+                    if (puzzle_info.game_mode == 2)
+                    {
+                        lineEq = "<x, y> = t * <" + solutionVec.x + ", " + solutionVec.y + ">";
+                    }
+                    else
+                    {
+                        lineEq = "<x, y> = t * <" + solutionVec.x + ", " + solutionVec.y + "> + <" + offsetVec.x + ", " + offsetVec.y + ">";
+                    }
+                }
+                else //display span format (if level 7 just display vector format again since span isn't applicable)
+                {
+                    if (puzzle_info.game_mode == 2)
+                    {
+                        lineEq = "span{<" + solutionVec.x + ", " + solutionVec.y + ">}";
+                    }
+                    else
+                    {
+                        lineEq = "t * <" + solutionVec.x + ", " + solutionVec.y + "> + <" + offsetVec.x + ", " + offsetVec.y + ">";
+                    }
+                }
+                solutionFormat = lineEq;
+                details[1] = lineEq;
+                solutionDisplaySet = true;
+            }
+            else
+            {
+                details[1] = solutionFormat;
+            }
+            
 
         }
         details[2] = (puzzle_info.attempt_count <= 0 ?
@@ -637,7 +744,7 @@ public class UFO_PuzzleManager : MonoBehaviour
     {
         Vector2 endPositionVector2 = new Vector2(endPosition.x, endPosition.z);
 
-        if (puzzle_info.game_mode != 2 && puzzle_info.game_mode != 3)
+        if ((puzzle_info.game_mode != 2 && puzzle_info.game_mode != 3) || puzzle_info.tutorial)
         {
             if (Solution == Vector2.zero)
             {
@@ -663,6 +770,9 @@ public class UFO_PuzzleManager : MonoBehaviour
                     {
                         Debug.Log("tutorial success");
                         InfoController.GetComponent<GUI_InfoController>().ShowTutorialSuccess();
+                        puzzle_info.tutorial = false;
+                        Solution = new Vector2(0, 0);
+                        ResetGame();
                     }
                 }
 
@@ -670,6 +780,7 @@ public class UFO_PuzzleManager : MonoBehaviour
                 {
                     scorekeep.generate_score();
                     InfoController.GetComponent<GUI_InfoController>().ShowSuccessOverlay();
+                    Psychometrics.sendData();
                 }
             }
             else if (
@@ -681,6 +792,8 @@ public class UFO_PuzzleManager : MonoBehaviour
                 GameObject level_data = GameObject.Find("LevelData");
                 Destroy(level_data);
                 Psychometrics.report("M");
+
+                Psychometrics.sendData();
             }
             else
             {
@@ -697,6 +810,7 @@ public class UFO_PuzzleManager : MonoBehaviour
                 scorekeep.generate_score();
                 InfoController.GetComponent<GUI_InfoController>().ShowSuccessOverlay();
                 levelFinished = true;
+                Psychometrics.sendData();
             }
         }
     }
