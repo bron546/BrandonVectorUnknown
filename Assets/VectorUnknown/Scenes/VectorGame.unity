@@ -10086,6 +10086,17 @@ MonoBehaviour:
   puzzle_info: {fileID: 0}
   scorekeep: {fileID: 0}
   number_of_goals: 0
+  max_key_retrys: 15
+  key_retrys: 0
+  offsetMax: 0
+  spacingMax: 0
+  spacingMin: 0
+  levelFinished: 0
+  resetFlag: 0
+  solutionVec: {x: 0, y: 0}
+  offsetVec: {x: 0, y: 0}
+  solutionDisplaySet: 0
+  solutionFormat: 
 --- !u!114 &1189697823
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14878,6 +14889,7 @@ MonoBehaviour:
   player_position: {fileID: 2004129842}
   goal_position: {fileID: 1464932599}
   attempts: {fileID: 1649059899}
+  attemptLabel: {fileID: 1929449214}
   puzzle_manager: {fileID: 1189697819}
 --- !u!114 &1648530794
 MonoBehaviour:
@@ -17020,8 +17032,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1246771092}
   m_HandleRect: {fileID: 1246771091}
   m_Direction: 3
-  m_Value: 0.99999964
-  m_Size: 0.77451605
+  m_Value: 0.9999995
+  m_Size: 0.7343261
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

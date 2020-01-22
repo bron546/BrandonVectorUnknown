@@ -87,7 +87,7 @@ public class UFO_PuzzleManager : MonoBehaviour
             //choose vectors from <1,0> to <3,1> in BaseVecctors
             lowerLimit = 2;
             upperLimit = 7; 
-            if(puzzle_info.game_mode == 2 || puzzle_info.game_mode == 3)
+            if(puzzle_info.game_mode == 2 || puzzle_info.game_mode == 3 || puzzle_info.game_mode == 4 || puzzle_info.game_mode == 5)
             {
                 number_of_goals = 6;
                 //offsetMax = 4;
@@ -100,7 +100,7 @@ public class UFO_PuzzleManager : MonoBehaviour
             //choose vectors from <1,0> to <5,1> in BaseVecctors
             lowerLimit = 2; 
             upperLimit = 11;
-            if (puzzle_info.game_mode == 2 || puzzle_info.game_mode == 3)
+            if (puzzle_info.game_mode == 2 || puzzle_info.game_mode == 3 || puzzle_info.game_mode == 4 || puzzle_info.game_mode == 5)
             {
                 //offsetMax = 5;
                 upperLimit = 9;
@@ -113,7 +113,7 @@ public class UFO_PuzzleManager : MonoBehaviour
         {   //hard
             lowerLimit = 7;
             upperLimit = 16;
-            if (puzzle_info.game_mode == 2 || puzzle_info.game_mode == 3)
+            if (puzzle_info.game_mode == 2 || puzzle_info.game_mode == 3 || puzzle_info.game_mode == 4 || puzzle_info.game_mode == 5)
             {
                 //offsetMax = 6;
                 lowerLimit = 2;
@@ -148,7 +148,7 @@ public class UFO_PuzzleManager : MonoBehaviour
         int quad_2 = rnd.Next(1, 3); // Quad[1]= Random quadrant for the second solution vector, must be adjacent to Quad[0]
         enforce_quadrants(quad_1, quad_2);
 
-        if (puzzle_info.game_mode != 2 && puzzle_info.game_mode != 3)
+        if (puzzle_info.game_mode != 2 && puzzle_info.game_mode != 3 && puzzle_info.game_mode != 4 && puzzle_info.game_mode != 5)
         {
             // Calculate Solution and Goal Positions
             Solution = generate_solution(Num);
@@ -286,6 +286,135 @@ public class UFO_PuzzleManager : MonoBehaviour
             }
         }
 
+        else if (puzzle_info.game_mode == 4)//gamemode 4 (invisible line through origin)
+        {
+            GoalPositions = new Vector3[number_of_goals];
+            generate_solution(Num);
+            Vector2 thisSolution = Choices[1];
+            solutionVec = thisSolution;
+            Vector3 thisGoalPosition = new Vector3(thisSolution.x, GameConstants.Height / GameConstants.GridSpacing, thisSolution.y) * GameConstants.GridSpacing;
+            shuffle(Choices);
+            string log_path = Application.dataPath + "/puzzle_manager_logfile.txt";
+            log(log_path);
+            GoalPositions[0] = thisGoalPosition;
+            GameObject thisGoal = Instantiate<GameObject>(Goal);
+            thisGoal.transform.position = new Vector3(thisSolution.x, GameConstants.Height, thisSolution.y);
+            setBasketInvisible(thisGoal);
+
+
+            for (int i = 1; i < number_of_goals; i++)
+            {
+                int randomSpacing = rnd.Next(spacingMin, spacingMax);
+                int sign = rnd.Next(0, 2);
+                if (sign == 0)
+                {
+                    Vector2 newPosition = -(i + randomSpacing) * thisSolution;
+                    int attempts = 5;
+                    while ((checkOutsideBounds(newPosition) || checkNearOrigin(newPosition)) && attempts > 0)
+                    {
+                        randomSpacing = rnd.Next(spacingMin, spacingMax);
+                        newPosition = -(i + randomSpacing) * thisSolution;
+                        attempts--;
+                    }
+                    if (attempts <= 0)
+                    {
+                        ResetScene();
+                    }
+                    thisGoalPosition = new Vector3(newPosition.x, GameConstants.Height / GameConstants.GridSpacing, newPosition.y) * GameConstants.GridSpacing;
+                    GoalPositions[i] = thisGoalPosition;
+                    thisGoal = Instantiate<GameObject>(Goal);
+                    thisGoal.transform.position = new Vector3(newPosition.x, GameConstants.Height, newPosition.y);
+                    setBasketInvisible(thisGoal);
+                }
+                else
+                {
+                    Vector2 newPosition = (i + randomSpacing) * thisSolution;
+                    int attempts = 5;
+                    while ((checkOutsideBounds(newPosition) || checkNearOrigin(newPosition)) && attempts > 0)
+                    {
+                        randomSpacing = rnd.Next(spacingMin, spacingMax);
+                        newPosition = (i + randomSpacing) * thisSolution;
+                        attempts--;
+                    }
+                    if (attempts <= 0)
+                    {
+                        ResetScene();
+                    }
+                    thisGoalPosition = new Vector3(newPosition.x, GameConstants.Height / GameConstants.GridSpacing, newPosition.y) * GameConstants.GridSpacing;
+                    GoalPositions[i] = thisGoalPosition;
+                    thisGoal = Instantiate<GameObject>(Goal);
+                    thisGoal.transform.position = new Vector3(newPosition.x, GameConstants.Height, newPosition.y);
+                    setBasketInvisible(thisGoal);
+                }
+
+            }
+
+        }
+        else if (puzzle_info.game_mode == 5)//gamemode 3 (invisible line off origin)
+        {
+            GoalPositions = new Vector3[number_of_goals];
+            generate_solution(Num);
+            Vector2 thisSolution = Choices[1];
+            Vector2 offset = Choices[0];
+            Vector2 offsetSolution = thisSolution + offset;
+            solutionVec = thisSolution;
+            offsetVec = offset;
+            Vector3 thisGoalPosition = new Vector3(offsetSolution.x, GameConstants.Height / GameConstants.GridSpacing, offsetSolution.y) * GameConstants.GridSpacing;
+            shuffle(Choices);
+            string log_path = Application.dataPath + "/puzzle_manager_logfile.txt";
+            log(log_path);
+            GoalPositions[0] = thisGoalPosition;
+            GameObject thisGoal = Instantiate<GameObject>(Goal);
+            thisGoal.transform.position = new Vector3(offsetSolution.x, GameConstants.Height, offsetSolution.y);
+            setBasketInvisible(thisGoal);
+            for (int i = 1; i < number_of_goals; i++)
+            {
+                int randomSpacing = rnd.Next(spacingMin, spacingMax);
+                int sign = rnd.Next(0, 2);
+                if (sign == 0)
+                {
+                    Vector2 newPosition = -(i + randomSpacing) * thisSolution + offset;
+                    int attempts = 5;
+                    while ((checkOutsideBounds(newPosition) || checkNearOrigin(newPosition)) && attempts > 0)
+                    {
+                        randomSpacing = rnd.Next(spacingMin, spacingMax);
+                        newPosition = -(i + randomSpacing) * thisSolution + offset;
+                        attempts--;
+                    }
+                    if (attempts <= 0)
+                    {
+                        ResetScene();
+                    }
+                    thisGoalPosition = new Vector3(newPosition.x, GameConstants.Height / GameConstants.GridSpacing, newPosition.y) * GameConstants.GridSpacing;
+                    GoalPositions[i] = thisGoalPosition;
+                    thisGoal = Instantiate<GameObject>(Goal);
+                    thisGoal.transform.position = new Vector3(newPosition.x, GameConstants.Height, newPosition.y);
+                    setBasketInvisible(thisGoal);
+                }
+                else
+                {
+                    Vector2 newPosition = (i + randomSpacing) * thisSolution + offset;
+                    int attempts = 5;
+                    while ((checkOutsideBounds(newPosition) || checkNearOrigin(newPosition)) && attempts > 0)
+                    {
+                        randomSpacing = rnd.Next(spacingMin, spacingMax);
+                        newPosition = (i + randomSpacing) * thisSolution + offset;
+                        attempts--;
+                    }
+                    if (attempts <= 0)
+                    {
+                        ResetScene();
+                    }
+                    thisGoalPosition = new Vector3(newPosition.x, GameConstants.Height / GameConstants.GridSpacing, newPosition.y) * GameConstants.GridSpacing;
+                    GoalPositions[i] = thisGoalPosition;
+                    thisGoal = Instantiate<GameObject>(Goal);
+                    thisGoal.transform.position = new Vector3(newPosition.x, GameConstants.Height, newPosition.y);
+                    setBasketInvisible(thisGoal);
+                }
+
+            }
+        }
+
         update_choices();
 
         /* Limited Tour Game Mode */
@@ -305,6 +434,38 @@ public class UFO_PuzzleManager : MonoBehaviour
     {
         if ((Math.Abs(point.x) < 4) && (Math.Abs(point.y) < 4)) return true;
         else return false;
+    }
+
+    public void setBasketInvisible(GameObject goal)
+    {
+        goal.GetComponent<LineRenderer>().enabled = false;
+        Transform basketTransform = goal.transform.GetChild(0);
+        for(int i = 0; i < basketTransform.childCount; i++)
+        {
+            Transform meshGroup = basketTransform.GetChild(i);
+            for(int j = 0; j < meshGroup.childCount; j++)
+            {
+                Transform meshTransform = meshGroup.GetChild(j);
+                MeshRenderer renderer = meshTransform.gameObject.GetComponent<MeshRenderer>();
+                renderer.enabled = false;
+            }
+        }
+    }
+
+    public void setBasketVisible(GameObject goal)
+    {
+        goal.GetComponent<LineRenderer>().enabled = true;
+        Transform basketTransform = goal.transform.GetChild(0);
+        for (int i = 0; i < basketTransform.childCount; i++)
+        {
+            Transform meshGroup = basketTransform.GetChild(i);
+            for (int j = 0; j < meshGroup.childCount; j++)
+            {
+                Transform meshTransform = meshGroup.GetChild(j);
+                MeshRenderer renderer = meshTransform.gameObject.GetComponent<MeshRenderer>();
+                renderer.enabled = true;
+            }
+        }
     }
 
     public void set_tutorial()
@@ -367,6 +528,7 @@ public class UFO_PuzzleManager : MonoBehaviour
             return;
         }
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        
     }
 
     /* First Puzzle Algorithms */
@@ -601,7 +763,7 @@ public class UFO_PuzzleManager : MonoBehaviour
     }
     public void decrement_goals()
     {
-        if (puzzle_info.game_mode == 2 || puzzle_info.game_mode == 3)
+        if (puzzle_info.game_mode == 2 || puzzle_info.game_mode == 3 || puzzle_info.game_mode == 4 || puzzle_info.game_mode == 5)
         {
             number_of_goals = number_of_goals - 1;
 
@@ -654,11 +816,11 @@ public class UFO_PuzzleManager : MonoBehaviour
         string[] details = new string[3];
 
         details[0] = "< " + Player.transform.position.x.ToString("0") + ", " + Player.transform.position.z.ToString("0") + ">";
-        if (( puzzle_info.game_mode != 2 && puzzle_info.game_mode != 3) || puzzle_info.tutorial)
+        if (( puzzle_info.game_mode != 2 && puzzle_info.game_mode != 3 && puzzle_info.game_mode != 4 && puzzle_info.game_mode != 5) || puzzle_info.tutorial)
         {
             details[1] = "< " + Goal.transform.position.x.ToString("0") + ", " + Goal.transform.position.z.ToString("0") + ">";
         }
-        else if(puzzle_info.game_mode == 2 || puzzle_info.game_mode == 3)
+        else if(puzzle_info.game_mode == 2 || puzzle_info.game_mode == 3 || puzzle_info.game_mode == 4 || puzzle_info.game_mode == 5)
         {
             if (!solutionDisplaySet)
             {
@@ -666,7 +828,7 @@ public class UFO_PuzzleManager : MonoBehaviour
                 int randLineDisplay = rnd.Next(0, 3);//random num 0-2
                 if (randLineDisplay == 0)//display y=mx+b format
                 {
-                    if (puzzle_info.game_mode == 2)
+                    if (puzzle_info.game_mode == 2 || puzzle_info.game_mode == 4)
                     {
                         lineEq = "y = (" + solutionVec.y + "/" + solutionVec.x + ") x";
                     }
@@ -677,7 +839,7 @@ public class UFO_PuzzleManager : MonoBehaviour
                 }
                 else if (randLineDisplay == 1)//display vector format
                 {
-                    if (puzzle_info.game_mode == 2)
+                    if (puzzle_info.game_mode == 2 || puzzle_info.game_mode == 4)
                     {
                         lineEq = "<x, y> = t * <" + solutionVec.x + ", " + solutionVec.y + ">";
                     }
@@ -688,7 +850,7 @@ public class UFO_PuzzleManager : MonoBehaviour
                 }
                 else //display span format (if level 7 just display vector format again since span isn't applicable)
                 {
-                    if (puzzle_info.game_mode == 2)
+                    if (puzzle_info.game_mode == 2 || puzzle_info.game_mode == 4)
                     {
                         lineEq = "span{<" + solutionVec.x + ", " + solutionVec.y + ">}";
                     }
@@ -744,7 +906,7 @@ public class UFO_PuzzleManager : MonoBehaviour
     {
         Vector2 endPositionVector2 = new Vector2(endPosition.x, endPosition.z);
 
-        if ((puzzle_info.game_mode != 2 && puzzle_info.game_mode != 3) || puzzle_info.tutorial)
+        if ((puzzle_info.game_mode != 2 && puzzle_info.game_mode != 3 && puzzle_info.game_mode != 4 && puzzle_info.game_mode != 5) || puzzle_info.tutorial)
         {
             if (Solution == Vector2.zero)
             {
@@ -816,7 +978,7 @@ public class UFO_PuzzleManager : MonoBehaviour
     }
     public void GoalCollisionTestSuccess()
     {
-        if (puzzle_info.game_mode != 2 && puzzle_info.game_mode != 3)
+        if (puzzle_info.game_mode != 2 && puzzle_info.game_mode != 3 && puzzle_info.game_mode != 4 && puzzle_info.game_mode != 5)
         {
             if (number_of_goals < 0)
             {
