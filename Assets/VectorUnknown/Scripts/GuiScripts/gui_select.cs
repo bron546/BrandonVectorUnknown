@@ -41,22 +41,22 @@ public class gui_select : MonoBehaviour {
         SceneManager.LoadScene ("VectorGame");
 	}
 
-	public void level_three(){
-        Psychometrics.logEvent("L3");
-        puzzle_settings ( 5, 1, 1, 0);
-        PlayerPrefs.SetInt("CurrentLevel", 3);
-        SceneManager.LoadScene ("VectorGame");
-	}
+	//public void level_three(){
+ //       Psychometrics.logEvent("L3");
+ //       puzzle_settings ( 5, 1, 1, 0);
+ //       PlayerPrefs.SetInt("CurrentLevel", 3);
+ //       SceneManager.LoadScene ("VectorGame");
+	//}
 
-	public void level_four(){
-        Psychometrics.logEvent("L4");
-        puzzle_settings ( 5, 0, 0, 0);
-        PlayerPrefs.SetInt("CurrentLevel", 4);
-        SceneManager.LoadScene ("VectorGame");
-	}
+	//public void level_four(){
+ //       Psychometrics.logEvent("L4");
+ //       puzzle_settings ( 5, 0, 0, 0);
+ //       PlayerPrefs.SetInt("CurrentLevel", 4);
+ //       SceneManager.LoadScene ("VectorGame");
+	//}
 
 	public void level_five(){
-        Psychometrics.logEvent("L5");
+        Psychometrics.logEvent("L3");
         puzzle_settings ( -1, 1, 1, 1);
         PlayerPrefs.SetInt("CurrentLevel", 5);
         SceneManager.LoadScene ("VectorGame");
@@ -65,7 +65,7 @@ public class gui_select : MonoBehaviour {
 	}
     public void level_six()
     {
-        Psychometrics.logEvent("L6");
+        Psychometrics.logEvent("L4");
         puzzle_settings(-1, 1, 1, 2);
         PlayerPrefs.SetInt("CurrentLevel", 6);
         SceneManager.LoadScene("VectorGame");
@@ -74,7 +74,7 @@ public class gui_select : MonoBehaviour {
     }
     public void level_seven()
     {
-        Psychometrics.logEvent("L7");
+        Psychometrics.logEvent("L5");
         puzzle_settings(-1, 1, 1, 3);
         PlayerPrefs.SetInt("CurrentLevel", 7);
         SceneManager.LoadScene("VectorGame");
@@ -84,7 +84,7 @@ public class gui_select : MonoBehaviour {
 
     public void level_eight()
     {
-        Psychometrics.logEvent("L8");
+        Psychometrics.logEvent("L6");
         puzzle_settings(-1, 1, 1, 4);
         PlayerPrefs.SetInt("CurrentLevel", 8);
         SceneManager.LoadScene("VectorGame");
@@ -94,7 +94,7 @@ public class gui_select : MonoBehaviour {
 
     public void level_nine()
     {
-        Psychometrics.logEvent("L9");
+        Psychometrics.logEvent("L7");
         puzzle_settings(-1, 1, 1, 5);
         PlayerPrefs.SetInt("CurrentLevel", 9);
         SceneManager.LoadScene("VectorGame");
