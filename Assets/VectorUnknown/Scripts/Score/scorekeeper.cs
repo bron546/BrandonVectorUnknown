@@ -97,7 +97,7 @@ public class scorekeeper : MonoBehaviour
 
     void Update()
     {
-        if (this.active && manager.puzzle_info.tutorial == false)
+        if (this.active)// && manager.puzzle_info.tutorial == false)
         {
             game_time += Time.deltaTime;
             time_display.text = game_time.ToString("0.0");

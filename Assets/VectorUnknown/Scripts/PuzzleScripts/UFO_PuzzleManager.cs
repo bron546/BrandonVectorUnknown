@@ -834,7 +834,9 @@ public class UFO_PuzzleManager : MonoBehaviour
                     }
                     else
                     {
-                        lineEq = "y = (" + solutionVec.y + "/" + solutionVec.x + ") x + (" + offsetVec.y + "/" + offsetVec.x + ")";
+                        float b = (-offsetVec.x / solutionVec.x) * solutionVec.y + offsetVec.y;
+                        
+                        lineEq = "y = (" + solutionVec.y + "/" + solutionVec.x + ") x + (" + b + ")";
                     }
                 }
                 else if (randLineDisplay == 1)//display vector format
