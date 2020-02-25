@@ -858,7 +858,7 @@ public class UFO_PuzzleManager : MonoBehaviour
                     }
                     else
                     {
-                        lineEq = "t * <" + solutionVec.x + ", " + solutionVec.y + "> + <" + offsetVec.x + ", " + offsetVec.y + ">";
+                        lineEq = "<x, y> = t * <" + solutionVec.x + ", " + solutionVec.y + "> + <" + offsetVec.x + ", " + offsetVec.y + ">";
                     }
                 }
                 solutionFormat = lineEq;

@@ -16,7 +16,7 @@ public class gui_select : MonoBehaviour {
 	public int display_past_paths = 0;
 	public int load_game_mode = 0;
     public bool tutorial = false;
-    [Range(1, 5)]
+    [Range(0, 7)]
     public int level_number;
 
 	void Awake(){
@@ -58,7 +58,7 @@ public class gui_select : MonoBehaviour {
 	public void level_five(){
         Psychometrics.logEvent("L3");
         puzzle_settings ( -1, 1, 1, 1);
-        PlayerPrefs.SetInt("CurrentLevel", 5);
+        PlayerPrefs.SetInt("CurrentLevel", 3);
         SceneManager.LoadScene ("VectorGame");
 
         Debug.Log("Button 5 Pressed");
@@ -67,7 +67,7 @@ public class gui_select : MonoBehaviour {
     {
         Psychometrics.logEvent("L4");
         puzzle_settings(-1, 1, 1, 2);
-        PlayerPrefs.SetInt("CurrentLevel", 6);
+        PlayerPrefs.SetInt("CurrentLevel", 4);
         SceneManager.LoadScene("VectorGame");
 
         Debug.Log("Button 6 Pressed");
@@ -76,7 +76,7 @@ public class gui_select : MonoBehaviour {
     {
         Psychometrics.logEvent("L5");
         puzzle_settings(-1, 1, 1, 3);
-        PlayerPrefs.SetInt("CurrentLevel", 7);
+        PlayerPrefs.SetInt("CurrentLevel", 5);
         SceneManager.LoadScene("VectorGame");
 
         Debug.Log("Button 7 Pressed");
@@ -86,7 +86,7 @@ public class gui_select : MonoBehaviour {
     {
         Psychometrics.logEvent("L6");
         puzzle_settings(-1, 1, 1, 4);
-        PlayerPrefs.SetInt("CurrentLevel", 8);
+        PlayerPrefs.SetInt("CurrentLevel", 6);
         SceneManager.LoadScene("VectorGame");
 
         Debug.Log("Button 8 Pressed");
@@ -96,7 +96,7 @@ public class gui_select : MonoBehaviour {
     {
         Psychometrics.logEvent("L7");
         puzzle_settings(-1, 1, 1, 5);
-        PlayerPrefs.SetInt("CurrentLevel", 9);
+        PlayerPrefs.SetInt("CurrentLevel", 7);
         SceneManager.LoadScene("VectorGame");
 
         Debug.Log("Button 9 Pressed");
