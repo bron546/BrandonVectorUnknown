@@ -929,6 +929,7 @@ public class UFO_PuzzleManager : MonoBehaviour
                     {
                         scorekeep.generate_score();
                         InfoController.GetComponent<GUI_InfoController>().ShowSuccessOverlay();
+                        Psychometrics.sendData();
                     }
                     if (puzzle_info.tutorial == true)
                     {
@@ -989,6 +990,7 @@ public class UFO_PuzzleManager : MonoBehaviour
                 Psychometrics.report("H");
                 scorekeep.generate_score();
                 InfoController.GetComponent<GUI_InfoController>().ShowSuccessOverlay();
+                Psychometrics.sendData();
             }
         }
     }
