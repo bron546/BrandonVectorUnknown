@@ -19,6 +19,7 @@ TagManager:
   - Blinker
   - Score
   - Goal
+  - DLM
   layers:
   - Default
   - TransparentFX

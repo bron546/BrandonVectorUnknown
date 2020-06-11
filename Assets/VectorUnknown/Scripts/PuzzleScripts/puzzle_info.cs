@@ -72,20 +72,12 @@ public class puzzle_info : MonoBehaviour {
     public void Reset(){
 		
 		player_position = new Vector3 (0, 0, 0); //inital starting point of <0, 0, 0>
-        GameObject [] level_data_array = FindGameObjectsWithName("LevelData");
-        GameObject level_data = null;
-        
-        foreach (GameObject go in level_data_array)
-        {
-            level_data = go;          
-        }
-        
-        
+       
         
         //GameObject level_data = GameObject.Find ("LevelData");
-		gui_select data = level_data.GetComponent< gui_select> ();
+		DynamicLevelManager data = GameObject.FindGameObjectWithTag("DLM").GetComponent<DynamicLevelManager>();
 
-		attempt_count = data.attempt_count;
+        attempt_count = data.attempt_count;
 		display_upcoming_path = data.display_upcoming_path;
 		display_past_paths = data.display_past_paths;
 		game_mode = data.load_game_mode;

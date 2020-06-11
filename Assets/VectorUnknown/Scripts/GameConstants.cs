@@ -49,7 +49,7 @@ public class GameConstants : MonoBehaviour {
     {
         GameObject level_data = GameObject.Find("LevelData");
         Destroy(level_data);
-        GameConstants.menu_level_select = true;
+        GameConstants.menu_level_select = false;
         SceneManager.LoadScene("menu_scene");
     }
 
