@@ -61,38 +61,47 @@ public class DynamicLevelManager : MonoBehaviour
         {
             case 0:
                 GameConstants.difficulty = 1;
+                GameConstants.level_string = "E1";
                 level_one();
                 break;
             case 1:
                 GameConstants.difficulty = 1;
+                GameConstants.level_string = "E2";
                 level_two();
                 break;
             case 2:
                 GameConstants.difficulty = 1;
+                GameConstants.level_string = "E3";
                 level_three();
                 break;
             case 3:
                 GameConstants.difficulty = 2;
+                GameConstants.level_string = "M1";
                 level_one();
                 break;
             case 4:
                 GameConstants.difficulty = 2;
+                GameConstants.level_string = "M2";
                 level_two();
                 break;
             case 5:
                 GameConstants.difficulty = 2;
+                GameConstants.level_string = "M3";
                 level_three();
                 break;
             case 6:
                 GameConstants.difficulty = 3;
+                GameConstants.level_string = "H1";
                 level_one();
                 break;
             case 7:
                 GameConstants.difficulty = 3;
+                GameConstants.level_string = "H2";
                 level_two();
                 break;
             case 8:
                 GameConstants.difficulty = 3;
+                GameConstants.level_string = "H3";
                 level_three();
                 break;
 

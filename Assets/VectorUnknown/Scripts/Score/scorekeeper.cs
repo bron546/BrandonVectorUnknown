@@ -22,6 +22,7 @@ public class scorekeeper : MonoBehaviour
 {
 
     public Text time_display;
+    public Text level_display;
     public puzzle_info info;
     public UFO_PuzzleManager manager;
     private float game_time;
@@ -101,6 +102,7 @@ public class scorekeeper : MonoBehaviour
         {
             game_time += Time.deltaTime;
             time_display.text = game_time.ToString("0.0");
+            level_display.text = GameConstants.level_string;
             numAttempts = manager.number_of_attempts;
             maxAttempts = info.attempt_count;
         }

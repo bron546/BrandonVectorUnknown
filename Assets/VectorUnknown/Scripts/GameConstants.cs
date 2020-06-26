@@ -11,6 +11,7 @@ public class GameConstants : MonoBehaviour {
     public static bool locked = true;                   // For determining whether the player is locked to the grid or not
     static public int difficulty = 1; //1 -> easy, 2 -> medium, 3 -> hard
     static public bool menu_level_select = false;
+    static public string level_string = "1E";
     static public int GridSpacing = 1;					//Grid Spacing on the Game Board
 	static public float Height = 2.5f;					//Y Value of Player and Goal
 	static public float Speed = 5.0f;                   //Speed of player
