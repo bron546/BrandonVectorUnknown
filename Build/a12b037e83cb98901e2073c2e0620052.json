@@ -1,0 +1,18 @@
+{
+"companyName": "DefaultCompany",
+"productName": "vector_unknown",
+"dataUrl": "f8494bbfa1c6f8284331d6afffe88bb6.unityweb",
+"wasmCodeUrl": "f4632b05a60833cfba25aa0fbfd5bdf5.unityweb",
+"wasmFrameworkUrl": "f14ec0891e2a4058f515d246b79a15fa.unityweb",
+"wasmSymbolsUrl": "ab892ee834a3c58d58a6bd11ceae9499.unityweb",
+"asmCodeUrl": "b960e9f7f1c4ecc5d8e2ce3a31d15d8e.unityweb",
+"asmMemoryUrl": "14ed7e718205a55707d7ff0f15f7b11f.unityweb",
+"asmFrameworkUrl": "a2f319b5696fefe1f714380c6574ac08.unityweb",
+"asmSymbolsUrl": "9668fbf4c534ee3a6c81a21eadc7a692.unityweb",
+"TOTAL_MEMORY": 268435456,
+"graphicsAPI": ["WebGL 2.0", "WebGL 1.0"],
+"webglContextAttributes": {"preserveDrawingBuffer": false},
+"splashScreenStyle": "Dark",
+"backgroundColor": "#231F20",
+"cacheControl": {"default": "must-revalidate"}
+}
